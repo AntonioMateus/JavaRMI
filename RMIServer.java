@@ -3,6 +3,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map; 
 import java.util.HashMap; 
+import java.util.Iterator; 
 //Java RMI:
 import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
@@ -75,6 +76,16 @@ public class RMIServer extends UnicastRemoteObject implements PartRepository, Pa
 	public boolean ehPrimitiva() throws RemoteException {
 		return (this.subcomponentes.size()==0);
 	}
+	
+	public void removeSubComponente(int id) throws RemoteException {
+		Iterator<Part> pecas = this.subcomponentes.keySet().iterator(); 
+		Part pecaARemover = null; 
+		while (pecas.hasNext()) {
+			pecaARemover = pecas.next(); 
+			if (pecaARemover.getCodigo()==id) break; 
+		}
+		if (pecaARemover != null) this.subcomponentes.remove(pecaARemover);
+	}
 	//***************************************************************************************
 	
 	//*************** Metodos da interface PartRepository (jah explicados) ******************
@@ -114,7 +125,11 @@ public class RMIServer extends UnicastRemoteObject implements PartRepository, Pa
 		return peca; 
 	}
 	
-	
+	public void removePeca(int id) throws RemoteException {
+		for (int i = 0; i < listaPecas.size(); i++) {
+			if (listaPecas.get(i).getCodigo()==id) listaPecas.remove(i); 
+		}
+	}
 	//****************************************************************************************
 	
 	/* metodo que fora usado para teste do servidor. Observe que o nome do servidor deve ser
