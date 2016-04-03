@@ -154,7 +154,23 @@ public class RMIClient {
 						System.out.println("A peca foi inserida e eh a nova peca corrente");
 					}
 					else if (comando.equals("help")) {
-						System.out.println("comando de ajuda a implementar");
+						System.out.println("Comandos aceitos pelo sistema:");
+						System.out.println("- bind: faz o cliente se conectar a outro servidor e muda o repositorio");
+						System.out.println("corrente. Seu unico parametro eh o nome do \"servidor-alvo\".");
+						System.out.println("Durante a implementacao desse sistema, definiu-se que o nome de um");
+						System.out.println("servidor seria: Servidor%i, onde \'%i\' eh um numero inteiro.");
+						System.out.println("- listp: lista as pecas do repositorio corrente.");
+						System.out.println("- getp: busca uma peca por codigo (que eh um numero inteiro maior ou");
+						System.out.println("igual a 1 e o unico parametro. A busca eh efetuada no repositorio ");
+						System.out.println("corrente. Se encontrada, a peca passa a ser a nova peca corrente.");
+						System.out.println("- showp: mostra atributos da peca corrente e seus subcomponentes, se");
+						System.out.println("houver.");
+						System.out.println("- clearlist: esvazia a lista de subpecas corrente.");
+						System.out.println("- addsubpart: adiciona a lista de subpecas corrente n unidades da peca");
+						System.out.println("corrente. O inteiro n eh passado por parametros.");
+						System.out.println("- addp: adiciona uma peca ao repositorio corrente. A lista de subpecas");
+						System.out.println("corrente eh usada como lista de subcomponentes diretos da nova peca.");
+						System.out.println("- quit: encerra a execucao do cliente.");
 					}
 					else { 
 						System.out.println("Comando invalido");
