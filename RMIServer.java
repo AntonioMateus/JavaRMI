@@ -10,23 +10,32 @@ import java.rmi.server.UnicastRemoteObject;
 import java.rmi.RemoteException;
 import java.rmi.server.ExportException; 
 
+/*
+* Classe RMIServer 
+* Comentario: classe que implementa ambas as interfaces PartRepository e Part
+* e representa um servidor RMI. 
+*/
+
 public class RMIServer extends UnicastRemoteObject implements PartRepository, Part {
-	//***************** PartRepository ****************************
-	List<Part> listaPecas; 
-	String nomeServidor = null; 
-	//********************** Part *********************************
+	//***************** Atributos de PartRepository ***************
+	List<Part> listaPecas; //lista de pecas contidas no repositorio
+	String nomeServidor = null; //nome do servidor 
+	//********************* Atributos de Part *********************
 	int codigoPeca = 0; /*identificador gerado automaticamente pelo
 	sistema quando foram inseridas informacoes sobre a peca */
-	String nomePeca = null; 
-	String descricaoPeca = null; 
-	Map<Part,Integer> subcomponentes; 
+	String nomePeca = null; //nome da peca
+	String descricaoPeca = null; //descricao da peca
+	Map<Part,Integer> subcomponentes; /*mapa de subcomponentes em 
+	que cada par representa uma peca e a respectiva quantidade*/
 	//*************************************************************
 	
+	//construtor usado quando se quer instanciar um novo servidor
 	public RMIServer(String nome) throws RemoteException {
 		listaPecas = new LinkedList<>();
 		this.nomeServidor = nome; 		 
 	}
 	
+	//construtor usado quando se quer instanciar uma nova peca
 	public RMIServer(int id, String nome, String descricao) throws RemoteException {
 		this.codigoPeca = id; 
 		this.nomePeca = nome; 
@@ -34,7 +43,7 @@ public class RMIServer extends UnicastRemoteObject implements PartRepository, Pa
 		this.subcomponentes = new HashMap<>();
 	}
 	
-	//*********************************************** Part ****************************************************************
+	//***************** Metodos da interface Part (jah explicados) ******************
 	public int getCodigo() throws RemoteException { 
 		return this.codigoPeca;
 	}
@@ -66,9 +75,9 @@ public class RMIServer extends UnicastRemoteObject implements PartRepository, Pa
 	public boolean ehPrimitiva() throws RemoteException {
 		return (this.subcomponentes.size()==0);
 	}
-	//*********************************************************************************************************************
+	//***************************************************************************************
 	
-	//****************************************** PartRepository ***********************************************************
+	//*************** Metodos da interface PartRepository (jah explicados) ******************
 	public Part inserePeca(String nome, String descricao) throws RemoteException {
 		Part peca = new RMIServer(this.listaPecas.size()+1,nome,descricao); 
 		listaPecas.add(peca);
@@ -106,19 +115,17 @@ public class RMIServer extends UnicastRemoteObject implements PartRepository, Pa
 	}
 	
 	
-	//**********************************************************************************************************************
+	//****************************************************************************************
 	
+	/* metodo que fora usado para teste do servidor. Observe que o nome do servidor deve ser
+	"Servidor%i", em que %i representa um numero inteiro. Tal numero eh somado a 1000 para 
+	que o valor da porta de conexao seja conectado. */
 	public static void main (String args[]) {
 		int porta = Integer.parseInt(args[0].split("or")[1])+1000;
 		try {
 			RMIServer obj = new RMIServer(args[0]); 
 			Registry reg = LocateRegistry.createRegistry(porta);
 			reg.bind("PartRepositoryServer",obj);
-		}
-		catch (ExportException e) {
-			//System.out.println ("O servidor " +args[0] +" jah se encontra em uso");
-			e.printStackTrace(); 
-			System.exit(1); 
 		}
 		catch (Exception x) {
 			System.out.println ("Erro ao vincular o servidor "+args[0] +" a porta " +porta); 
