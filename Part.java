@@ -21,4 +21,6 @@ public interface Part extends Remote {
 	subcomponente a peca que esta sendo referenciada*/
 	public boolean ehPrimitiva() throws RemoteException; /*retorna se a peca eh primitiva (se nao possui
 	subcomponentes) ou nao */
+	public void removeSubComponente(int id) throws RemoteException; /* remove a peca de identificador 
+	fornecido da lista de sub-componentes da peca corrente. */
 }
