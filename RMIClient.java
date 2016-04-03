@@ -105,13 +105,31 @@ public class RMIClient {
 	descricao da peca corrente e, recursivamente, de seus subcomponentes. */
 	static void mostraSubpecas(Part peca, String espaco) throws RemoteException {
 		if (peca != null) {
-			System.out.println(espaco+"Nome: "+peca.getNome() +"; descricao: "+peca.getDescricao());
+			System.out.print(espaco+"Nome: "+peca.getNome() +"; descricao: "+peca.getDescricao());
+			String resp = (peca.ehPrimitiva())?"sim":"nao"; 
+			System.out.print("; eh primitiva: "+resp+"\n"); 
 			if (!peca.ehPrimitiva()) {
 				Iterator<Part> componentes = peca.getComponentes().keySet().iterator(); 
 				while(componentes.hasNext()) {
 					mostraSubpecas(componentes.next(),espaco+"-"); 
 				}
 			}
+		}
+	}
+	
+	static void removePecaRepositorioCorrente (int id) throws RemoteException {
+		if (repositorioCorrente == null) System.out.println ("O cliente nao esta conectado a nenhum servidor no momento.");
+		else {
+			repositorioCorrente.removePeca(id);
+			System.out.println("A peca de identificador "+id +" foi removida com sucesso do repositorio corrente.");
+		}
+	}
+	
+	static void removeSubpecaPecaCorrente (int id) throws RemoteException {
+		if (pecaCorrente == null) System.out.println ("O cliente nao esta referenciado a nenhuma peca no momento.");
+		else {
+			pecaCorrente.removeSubComponente(id); 
+			System.out.println("A subpeca de identificador "+id +" foi removida com sucesso da peca corrente.");
 		}
 	}
 	
@@ -193,9 +211,20 @@ public class RMIClient {
 						System.out.println("- clearlist: esvazia a lista de subpecas corrente.");
 						System.out.println("- addsubpart: adiciona a lista de subpecas corrente n unidades da peca");
 						System.out.println("corrente. O inteiro n eh passado por parametros.");
-						System.out.println("- addp: adiciona uma peca ao repositorio corrente. A lista de subpecas");
+						System.out.println("- addpa: adiciona uma peca agregada ao repositorio corrente. A lista de subpecas");
 						System.out.println("corrente eh usada como lista de subcomponentes diretos da nova peca.");
+						System.out.println("- addpp: adiciona uma peca primitiva ao repositorio corrente.");
 						System.out.println("- quit: encerra a execucao do cliente.");
+					}
+					else if (comando.equals("rem")) {
+						removePecaRepositorioCorrente(Integer.parseInt(parametros[1]));
+					}
+					else if (comando.equals("remsublist")) {
+						listaSubpecasCorrente.remove(listaSubpecasCorrente.size()-1);
+						System.out.println("A ultima peca da lista de subpecas corrente foi excluida.");
+					}
+					else if (comando.equals("remsubpart")) {
+						removeSubpecaPecaCorrente(Integer.parseInt(parametros[1]));
 					}
 					else { 
 						System.out.println("Comando invalido");
