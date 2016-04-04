@@ -136,11 +136,19 @@ public class RMIServer extends UnicastRemoteObject implements PartRepository, Pa
 	"Servidor%i", em que %i representa um numero inteiro. Tal numero eh somado a 1000 para 
 	que o valor da porta de conexao seja conectado. */
 	public static void main (String args[]) {
-		int porta = Integer.parseInt(args[0].split("or")[1])+1000;
+		if(args.lengt != 2){
+			System.out.println("Execute: java RMIServer [nome do servidor] [porta]");
+			System.out.println("\t[nome do servidor] = qualquer nome que vocc deseja dar ao seu servidor");
+			System.out.println("\t[porta] = número de porta qua voce desejar registrar o seu servidor. A porta nao pode estar sendo usada por nenhum outro processo. Escolha com cuidado");
+		}
+		
+		String servidorNome = args[0];
+		int porta = Integer.parseInt(args[1]);
+		
 		try {
 			RMIServer obj = new RMIServer(args[0]); 
 			Registry reg = LocateRegistry.createRegistry(porta);
-			reg.bind("PartRepositoryServer",obj);
+			reg.bind("PartRepositoryServer", obj);
 		}
 		catch (Exception x) {
 			System.out.println ("Erro ao vincular o servidor "+args[0] +" a porta " +porta); 
