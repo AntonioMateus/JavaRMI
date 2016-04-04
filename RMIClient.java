@@ -1,6 +1,8 @@
 //Java RMI
 import java.rmi.Naming; 
 import java.rmi.RemoteException;
+import java.rmi.ConnectException;
+import java.rmi.NotBoundException;
 //Estruturas de dados
 import java.util.List; 
 import java.util.Map;
@@ -143,108 +145,111 @@ public class RMIClient {
 	implementadas acima e tem seu funcionamento explicado pelo comando help. Qualquer informacao adicional seria 
 	considerada repetitiva. */
 	public static void main (String[] args) {
-		try {
-			System.out.println("Digite um dos comandos reconhecidos pelo sistema ou \'help\' para ajuda: ");
-			System.out.println();
-			Scanner input = new Scanner(System.in);
-			String comando = null; 
-			while (true) {
-				try {
-					String[] parametros = input.nextLine().split(" ");	
-					comando = parametros[0];
-					if (comando.equals("quit")) {
-						break; 
-					}
-					else if (comando.equals("bind")) {
-						int portaServidor = Integer.parseInt(parametros[1].split("or")[1])+1000;
-						repositorioCorrente = (PartRepository) Naming.lookup("//localhost:"+portaServidor+"/PartRepositoryServer");
-						System.out.println("O repositorio corrente foi alterado para o correspondente ao "+parametros[1]+".");
-					}
-					else if (comando.equals("listp")) {
-						listaPecasRepositorio(); 
-					}
-					else if (comando.equals("getp")) {
-						int indice = Integer.parseInt(parametros[1]);
-						pecaCorrente = buscaPeca(indice); 
-						if (pecaCorrente != null) { 
-							System.out.println("A peca de id "+indice +" foi encontrada.");
-							System.out.println("A peca de id "+indice +" eh a nova peca corrente.");
-						}
-						else {
-							System.out.println("A peca de id "+indice +" nao foi encontrada.");
-						}
-					}
-					else if (comando.equals("showp")) {
-						mostraSubpecas(pecaCorrente,""); 
-					}
-					else if (comando.equals("clearlist")) { 
-						listaSubpecasCorrente.clear();							
-						System.out.println("lista de subpecas corrente limpa");
-					}
-					else if (comando.equals("addsubpart")) {
-						int quantidade = Integer.parseInt(parametros[1]);
-						listaSubpecasCorrente.put(pecaCorrente,quantidade);
-						System.out.println("Foram adicionadas " +quantidade +" unidades da peca corrente a lista de subpecas corrente");
-					}
-					else if (comando.equals("addpa")) { 
-						String descricao = ""; 
-						for (int i = 2; i < parametros.length; i++) {
-							descricao = descricao + parametros[i] +" "; 
-						}
-						pecaCorrente = insereNovaPecaAgregada(parametros[1],descricao,listaSubpecasCorrente);
-						System.out.println("A peca foi inserida e eh a nova peca corrente");
-					}
-					else if (comando.equals("addpp")) { 
-						String descricao = ""; 
-						for (int i = 2; i < parametros.length; i++) {
-							descricao = descricao + parametros[i] +" "; 
-						}
-						pecaCorrente = insereNovaPecaPrimitiva(parametros[1],descricao);
-						System.out.println("A peca foi inserida e eh a nova peca corrente");
-					}
-					else if (comando.equals("help")) {
-						System.out.println("Comandos aceitos pelo sistema:");
-						System.out.println("- bind: faz o cliente se conectar a outro servidor e muda o repositorio");
-						System.out.println("corrente. Seu unico parametro eh o nome do \"servidor-alvo\".");
-						System.out.println("Durante a implementacao desse sistema, definiu-se que o nome de um");
-						System.out.println("servidor seria: Servidor%i, onde \'%i\' eh um numero inteiro.");
-						System.out.println("- listp: lista as pecas do repositorio corrente.");
-						System.out.println("- getp: busca uma peca por codigo (que eh um numero inteiro maior ou");
-						System.out.println("igual a 1 e o unico parametro. A busca eh efetuada no repositorio ");
-						System.out.println("corrente. Se encontrada, a peca passa a ser a nova peca corrente.");
-						System.out.println("- showp: mostra atributos da peca corrente e seus subcomponentes, se");
-						System.out.println("houver.");
-						System.out.println("- clearlist: esvazia a lista de subpecas corrente.");
-						System.out.println("- addsubpart: adiciona a lista de subpecas corrente n unidades da peca");
-						System.out.println("corrente. O inteiro n eh passado por parametros.");
-						System.out.println("- addpa: adiciona uma peca agregada ao repositorio corrente. A lista de subpecas");
-						System.out.println("corrente eh usada como lista de subcomponentes diretos da nova peca.");
-						System.out.println("- addpp: adiciona uma peca primitiva ao repositorio corrente.");
-						System.out.println("- quit: encerra a execucao do cliente.");
-					}
-					else if (comando.equals("rem")) {
-						removePecaRepositorioCorrente(Integer.parseInt(parametros[1]));
-					}
-					else if (comando.equals("remsublist")) {
-						listaSubpecasCorrente.remove(listaSubpecasCorrente.size()-1);
-						System.out.println("A ultima peca da lista de subpecas corrente foi excluida.");
-					}
-					else if (comando.equals("remsubpart")) {
-						removeSubpecaPecaCorrente(Integer.parseInt(parametros[1]));
-					}
-					else { 
-						System.out.println("Comando invalido");
-					}
-					System.out.println(); 
+		System.out.println("Digite um dos comandos reconhecidos pelo sistema ou \'help\' para ajuda: ");
+		System.out.println();
+		Scanner input = new Scanner(System.in);
+		String comando = null; 
+		while (true) {
+			try {
+				String[] parametros = input.nextLine().split(" ");	
+				comando = parametros[0];
+				if (comando.equals("quit")) {
+					break; 
 				}
-				catch(IndexOutOfBoundsException i) {
-					System.out.println("parametros invalidos");
-					System.out.println();
+				else if (comando.equals("bind")) {
+					int portaServidor = Integer.parseInt(parametros[1].split("or")[1])+1000;
+					repositorioCorrente = (PartRepository) Naming.lookup("//localhost:"+portaServidor+"/PartRepositoryServer");
+					System.out.println("O repositorio corrente foi alterado para o correspondente ao "+parametros[1]+".");
+				}
+				else if (comando.equals("listp")) {
+					listaPecasRepositorio(); 
+				}
+				else if (comando.equals("getp")) {
+					int indice = Integer.parseInt(parametros[1]);
+					pecaCorrente = buscaPeca(indice); 
+					if (pecaCorrente != null) { 
+						System.out.println("A peca de id "+indice +" foi encontrada.");
+						System.out.println("A peca de id "+indice +" eh a nova peca corrente.");
+					}
+					else {
+						System.out.println("A peca de id "+indice +" nao foi encontrada.");
+					}
+				}
+				else if (comando.equals("showp")) {
+					mostraSubpecas(pecaCorrente,""); 
+				}
+				else if (comando.equals("clearlist")) { 
+					listaSubpecasCorrente.clear();							
+					System.out.println("lista de subpecas corrente limpa");
+				}
+				else if (comando.equals("addsubpart")) {
+					int quantidade = Integer.parseInt(parametros[1]);
+					listaSubpecasCorrente.put(pecaCorrente,quantidade);
+					System.out.println("Foram adicionadas " +quantidade +" unidades da peca corrente a lista de subpecas corrente");
+				}
+				else if (comando.equals("addpa")) { 
+					String descricao = ""; 
+					for (int i = 2; i < parametros.length; i++) {
+						descricao = descricao + parametros[i] +" "; 
+					}
+					pecaCorrente = insereNovaPecaAgregada(parametros[1],descricao,listaSubpecasCorrente);
+					System.out.println("A peca foi inserida e eh a nova peca corrente");
+				}
+				else if (comando.equals("addpp")) { 
+					String descricao = ""; 
+					for (int i = 2; i < parametros.length; i++) {
+						descricao = descricao + parametros[i] +" "; 
+					}
+					pecaCorrente = insereNovaPecaPrimitiva(parametros[1],descricao);
+					System.out.println("A peca foi inserida e eh a nova peca corrente");
+				}
+				else if (comando.equals("help")) {
+					System.out.println("Comandos aceitos pelo sistema:");
+					System.out.println("- bind: faz o cliente se conectar a outro servidor e muda o repositorio");
+					System.out.println("corrente. Seu unico parametro eh o nome do \"servidor-alvo\".");
+					System.out.println("Durante a implementacao desse sistema, definiu-se que o nome de um");
+					System.out.println("servidor seria: Servidor%i, onde \'%i\' eh um numero inteiro.");
+					System.out.println("- listp: lista as pecas do repositorio corrente.");
+					System.out.println("- getp: busca uma peca por codigo (que eh um numero inteiro maior ou");
+					System.out.println("igual a 1 e o unico parametro. A busca eh efetuada no repositorio ");
+					System.out.println("corrente. Se encontrada, a peca passa a ser a nova peca corrente.");
+					System.out.println("- showp: mostra atributos da peca corrente e seus subcomponentes, se");
+					System.out.println("houver.");
+					System.out.println("- clearlist: esvazia a lista de subpecas corrente.");
+					System.out.println("- addsubpart: adiciona a lista de subpecas corrente n unidades da peca");
+					System.out.println("corrente. O inteiro n eh passado por parametros.");
+					System.out.println("- addpa: adiciona uma peca agregada ao repositorio corrente. A lista de subpecas");
+					System.out.println("corrente eh usada como lista de subcomponentes diretos da nova peca.");
+					System.out.println("- addpp: adiciona uma peca primitiva ao repositorio corrente.");
+					System.out.println("- quit: encerra a execucao do cliente.");
+				}
+				else if (comando.equals("rem")) {
+					removePecaRepositorioCorrente(Integer.parseInt(parametros[1]));
+				}
+				else if (comando.equals("remsublist")) {
+					listaSubpecasCorrente.remove(listaSubpecasCorrente.size()-1);
+					System.out.println("A ultima peca da lista de subpecas corrente foi excluida.");
+				}
+				else if (comando.equals("remsubpart")) {
+					removeSubpecaPecaCorrente(Integer.parseInt(parametros[1]));
+				}
+				else { 
+					System.out.println("Comando invalido");
+				}
+				System.out.println(); 
+			}
+			catch(IndexOutOfBoundsException i) {
+				System.out.println("parametros invalidos\n");
+			} 
+			catch(ConnectException | NotBoundException e){
+				//e.printStackTrace();
+				if (comando.equals("bind")) {
+					System.out.println("Nao ha nenhum servidor com esse nome.\n");
 				}
 			}
-		}
-		catch(Exception e) {
-			e.printStackTrace(); 
+			catch(Exception e){
+				e.printStackTrace();
+			}
 		}
 	}
 }
