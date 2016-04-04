@@ -24,8 +24,7 @@ public class RMIClient {
 	/* metodo que lista todas as pecas presentes em um repositorio, apresentando apenas o nome e a descricao
 	de cada um. */
 	static void listaPecasRepositorio() throws RemoteException {
-		if (repositorioCorrente==null) System.out.println("O programa cliente nao esta associado a nenhum servidor no momento");
-		else {
+		if (estaConectado()) {
 			List<Part> pecas = repositorioCorrente.recuperaTodasPecas();
 			if (pecas.size() != 0) {
 				for (Part peca: pecas) {
@@ -40,14 +39,13 @@ public class RMIClient {
 	
 	//metodo que retorna o nome de um servidor e o numero de pecas existente no repositorio correspondente
 	static String getSituacaoRepositorio() throws RemoteException {
-		if (repositorioCorrente == null) return "O cliente nao esta conectado a nenhum servidor no momento";
+		if (!estaConectado()) return "";
 		else return "nome: "+repositorioCorrente.getNomeServidor() +"; numero de pecas: "+repositorioCorrente.getNumeroPecas(); 
 	}
 	
 	//metodo que busca uma peca no repositorio corrente, atraves de seu identificador
 	static Part buscaPeca(int id) throws RemoteException {
-		if (repositorioCorrente == null) {
-			System.out.println("O cliente nao esta conectado a nenhum servidor no momento");
+		if (!estaConectado()) {
 			return null;
 		}		
 		return repositorioCorrente.recuperaPeca(id);
@@ -55,8 +53,7 @@ public class RMIClient {
 	
 	//metodo que insere uma nova peca agregada (isto eh, que possui subcomponentes)
 	static Part insereNovaPecaAgregada(String nome, String descricao, Map<Part,Integer> componentes) throws RemoteException {
-		if (repositorioCorrente == null) {
-			System.out.println("O cliente nao esta conectado a nenhum servidor no momento");
+		if (!estaConectado()) {
 			return null;
 		}
 		return repositorioCorrente.inserePeca(nome, descricao, componentes);
@@ -64,8 +61,7 @@ public class RMIClient {
 	
 	//metodo que insere uma nova peca primitiva (ou seja, que nao possui subcomponentes)
 	static Part insereNovaPecaPrimitiva(String nome, String descricao) throws RemoteException {
-		if (repositorioCorrente == null) {
-			System.out.println("O cliente nao esta conectado a nenhum servidor no momento");
+		if (!estaConectado()) {
 			return null;
 		}
 		return repositorioCorrente.inserePeca(nome, descricao);
@@ -73,20 +69,19 @@ public class RMIClient {
 	
 	//metodo que retorna o nome e a desscricao da peca corrente, se esta for valida. 
 	static String getCaracteristicasPecaCorrente() throws RemoteException {
-		if (pecaCorrente != null) return "Nome: "+pecaCorrente.getNome() +"; descricao: "+pecaCorrente.getDescricao(); 
+		if (estaReferenciandoPeca()) return "Nome: "+pecaCorrente.getNome() +"; descricao: "+pecaCorrente.getDescricao(); 
 		else return "nao ha nada a declarar";
 	}
 	
 	// se o cliente estiver conectado a algum servidor, seu nome sera retornado pelo metodo abaixo
 	static String getNomeRepositorioCorrente() throws RemoteException {
-		if (repositorioCorrente == null) return "O cliente nao esta conectado a nenhum servidor no momento";
+		if (!estaConectado()) return "";
 		return repositorioCorrente.getNomeServidor(); 
 	}
 	
 	// metodo que retorna se a peca corrente possui subcomponentes ou não
 	static boolean pecaEhPrimitiva() throws RemoteException {
-		if (pecaCorrente == null) {
-			System.out.println("Nao ha nenhuma peca sendo referenciada no momento");
+		if (!estaReferenciandoPeca()) {
 			return false; 
 		}
 		return (pecaCorrente.getComponentes().size()==0);
@@ -94,8 +89,7 @@ public class RMIClient {
 	
 	// metodo que retorna o numero de subcomponentes da peca corrente.
 	static int numeroSubcomponentes() throws RemoteException {
-		if (pecaCorrente == null) {
-			System.out.println("Nao ha nenhuma peca sendo referenciada no momento");
+		if (!estaReferenciandoPeca()) {
 			return 0; 
 		}
 		return pecaCorrente.getComponentes().size(); 
@@ -118,19 +112,31 @@ public class RMIClient {
 	}
 	
 	static void removePecaRepositorioCorrente (int id) throws RemoteException {
-		if (repositorioCorrente == null) System.out.println ("O cliente nao esta conectado a nenhum servidor no momento.");
-		else {
+		if (estaConectado()) {
 			repositorioCorrente.removePeca(id);
 			System.out.println("A peca de identificador "+id +" foi removida com sucesso do repositorio corrente.");
 		}
 	}
 	
 	static void removeSubpecaPecaCorrente (int id) throws RemoteException {
-		if (pecaCorrente == null) System.out.println ("O cliente nao esta referenciado a nenhuma peca no momento.");
-		else {
+		if(estaReferenciandoPeca()){
 			pecaCorrente.removeSubComponente(id); 
 			System.out.println("A subpeca de identificador "+id +" foi removida com sucesso da peca corrente.");
 		}
+	}
+	
+	static boolean estaConectado(){
+		if( repositorioCorrente == null ){
+			System.out.println ("O cliente nao esta conectado a nenhum servidor no momento.");
+		}
+		return repositorioCorrente != null;
+	}
+	
+	static boolean estaReferenciandoPeca(){
+		if( pecaCorrente == null ){
+			System.out.println ("O cliente nao esta referenciado a nenhuma peca no momento.");
+		}
+		return pecaCorrente != null;
 	}
 	
 	/* metodo principal da classe: ela apresenta um terminal ao usuario. Todos os comandos esperados utilizam as funcoes

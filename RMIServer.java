@@ -19,13 +19,13 @@ import java.rmi.server.ExportException;
 
 public class RMIServer extends UnicastRemoteObject implements PartRepository, Part {
 	//***************** Atributos de PartRepository ***************
-	List<Part> listaPecas; //lista de pecas contidas no repositorio
-	String nomeServidor = null; //nome do servidor 
+	private List<Part> listaPecas; //lista de pecas contidas no repositorio
+	private String nomeServidor = null; //nome do servidor 
 	//********************* Atributos de Part *********************
-	int codigoPeca = 0; /*identificador gerado automaticamente pelo
+	private int codigoPeca = 0; /*identificador gerado automaticamente pelo
 	sistema quando foram inseridas informacoes sobre a peca */
-	String nomePeca = null; //nome da peca
-	String descricaoPeca = null; //descricao da peca
+	private String nomePeca = null; //nome da peca
+	private String descricaoPeca = null; //descricao da peca
 	Map<Part,Integer> subcomponentes; /*mapa de subcomponentes em 
 	que cada par representa uma peca e a respectiva quantidade*/
 	//*************************************************************
@@ -144,7 +144,7 @@ public class RMIServer extends UnicastRemoteObject implements PartRepository, Pa
 		}
 		catch (Exception x) {
 			System.out.println ("Erro ao vincular o servidor "+args[0] +" a porta " +porta); 
-			System.exit(1); 
+			System.exit(1);
 		}
 	}
 }
