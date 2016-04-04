@@ -24,9 +24,9 @@ public class RMIServer extends UnicastRemoteObject implements PartRepository, Pa
 	//********************* Atributos de Part *********************
 	private int codigoPeca = 0; /*identificador gerado automaticamente pelo
 	sistema quando foram inseridas informacoes sobre a peca */
-	private String descricaoPeca = null; //descricao da peca
 	private String nomePeca = null; //nome da peca
-	private Map<Part,Integer> subcomponentes; /*mapa de subcomponentes em 
+	private String descricaoPeca = null; //descricao da peca
+	Map<Part,Integer> subcomponentes; /*mapa de subcomponentes em 
 	que cada par representa uma peca e a respectiva quantidade*/
 	//*************************************************************
 	
@@ -144,7 +144,7 @@ public class RMIServer extends UnicastRemoteObject implements PartRepository, Pa
 		}
 		catch (Exception x) {
 			System.out.println ("Erro ao vincular o servidor "+args[0] +" a porta " +porta); 
-			System.exit(1); 
+			System.exit(1);
 		}
 	}
 }
