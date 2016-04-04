@@ -111,6 +111,8 @@ public class RMIClient {
 		}
 	}
 	
+	/* se o cliente estiver conectado a um servidor, a peca cujo identificador eh especificado eh excluida do repositorio
+	correspondente */
 	static void removePecaRepositorioCorrente (int id) throws RemoteException {
 		if (estaConectado()) {
 			repositorioCorrente.removePeca(id);
@@ -118,6 +120,8 @@ public class RMIClient {
 		}
 	}
 	
+	/* se o cliente estiver referenciando uma peca, a subpeca cujo identificador eh especificado eh excluida da lista de 
+	subpecas da peca corrente */
 	static void removeSubpecaPecaCorrente (int id) throws RemoteException {
 		if(estaReferenciandoPeca()){
 			pecaCorrente.removeSubComponente(id); 
@@ -205,22 +209,37 @@ public class RMIClient {
 					else if (comando.equals("help")) {
 						System.out.println("Comandos aceitos pelo sistema:");
 						System.out.println("- bind: faz o cliente se conectar a outro servidor e muda o repositorio");
-						System.out.println("corrente. Seu unico parametro eh o nome do \"servidor-alvo\".");
-						System.out.println("Durante a implementacao desse sistema, definiu-se que o nome de um");
-						System.out.println("servidor seria: Servidor%i, onde \'%i\' eh um numero inteiro.");
-						System.out.println("- listp: lista as pecas do repositorio corrente.");
-						System.out.println("- getp: busca uma peca por codigo (que eh um numero inteiro maior ou");
-						System.out.println("igual a 1 e o unico parametro. A busca eh efetuada no repositorio ");
+						System.out.println("corrente. Parametros: ");
+						System.out.println("  - nome do servidor");
+						System.out.println("  - numero da porta a qual o servidor sera conectado.");
+						System.out.println("- listp: lista as pecas do repositorio corrente. Nao ha parametros.");
+						System.out.println("- getp: busca uma peca por codigo. A busca eh efetuada no repositorio ");
 						System.out.println("corrente. Se encontrada, a peca passa a ser a nova peca corrente.");
-						System.out.println("- showp: mostra atributos da peca corrente e seus subcomponentes, se");
-						System.out.println("houver.");
-						System.out.println("- clearlist: esvazia a lista de subpecas corrente.");
-						System.out.println("- addsubpart: adiciona a lista de subpecas corrente n unidades da peca");
-						System.out.println("corrente. O inteiro n eh passado por parametros.");
+						System.out.println("Parametros: ");
+						System.out.println("  - codigo da peca a ser buscada (numero inteiro maior ou igual a 1);");
+						System.out.println("- showp: mostra atributos da peca corrente e seus subcomponentes (caso");
+						System.out.println("eles existam). Nao ha parametros.");
+						System.out.println("- clearlist: esvazia a lista de subpecas corrente. Nao ha parametros.");
+						System.out.println("- addsubpart: adiciona a lista de subpecas corrente n unidades da peca.");
+						System.out.println("Parametros: ");
+						System.out.println("  - quantidade n de unidades da subpeca a ser inserida.");
 						System.out.println("- addpa: adiciona uma peca agregada ao repositorio corrente. A lista de subpecas");
-						System.out.println("corrente eh usada como lista de subcomponentes diretos da nova peca.");
-						System.out.println("- addpp: adiciona uma peca primitiva ao repositorio corrente.");
-						System.out.println("- quit: encerra a execucao do cliente.");
+						System.out.println("corrente eh usada como lista de subcomponentes diretos da nova peca. Parametros: ");
+						System.out.println("  - nome da peca");
+						System.out.println("  - descricao da peca. A partir do segundo parametro, qualquer espaco sera considerado");
+						System.out.println("  pertencente a descricao e nao como espaco \"separador\" de parametros.");
+						System.out.println("- addpp: adiciona uma peca primitiva (que nao tem subcomponentes) ao repositorio corrente.");
+						System.out.println("Parametros: ");
+						System.out.println("  - nome da peca");
+						System.out.println("  - descricao da peca. A partir do segundo parametro, qualquer espaco sera considerado");
+						System.out.println("  pertencente a descricao e nao como espaco \"separador\" de parametros.");
+						System.out.println("- rem: remove do repositorio corrente a peca cujo identificador eh especificado. Parametros: ");
+						System.out.println("  - identificador da peca a ser removida.");
+						System.out.println("- remsublist: remove a ultima peca da lista de subpecas corrente. Nao ha parametros.");
+						System.out.println("- remsubpart: dentre os subcomponentes da peca corrente, sera removida a peca cujo identificador");
+						System.out.println("eh especificado. Parametros: ");
+						System.out.println("  - identificador da subpeca a ser excluida.");
+						System.out.println("- quit: encerra a execucao do cliente. Nao ha parametros.");
 					}
 					else if (comando.equals("rem")) {
 						removePecaRepositorioCorrente(Integer.parseInt(parametros[1]));
