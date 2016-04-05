@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.Iterator; 
 //Leitura do fluxo de entrada
 import java.util.Scanner; 
+//Classes de conexão com a rede
+import java.net.MalformedURLException;
 
 /*
 * Classe RMIClient
@@ -258,14 +260,12 @@ public class RMIClient {
 			}
 			catch(IndexOutOfBoundsException i) {
 				System.out.println("parametros invalidos\n");
-			} 
-			catch(ConnectException | NotBoundException e){
+			} catch(ConnectException | NotBoundException | MalformedURLException e){
 				//e.printStackTrace();
 				if (comando.equals("bind")) {
 					System.out.println("Nao ha nenhum servidor com esse nome.\n");
 				}
-			}
-			catch(Exception e){
+			} catch(Exception e){
 				e.printStackTrace();
 			}
 		}
