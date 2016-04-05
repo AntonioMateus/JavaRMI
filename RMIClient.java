@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.Iterator; 
 //Leitura do fluxo de entrada
 import java.util.Scanner; 
+//Classes de conexão com a rede
+import java.net.MalformedURLException;
 
 /*
 * Classe RMIClient
@@ -161,9 +163,9 @@ public class RMIClient {
 					break; 
 				}
 				else if (comando.equals("bind")) {
-					int portaServidor = Integer.parseInt(parametros[1].split("or")[1])+1000;
-					repositorioCorrente = (PartRepository) Naming.lookup("//localhost:"+portaServidor+"/PartRepositoryServer");
-					System.out.println("O repositorio corrente foi alterado para o correspondente ao "+parametros[1]+".");
+					String portaServidor = parametros[1];
+					repositorioCorrente = (PartRepository) Naming.lookup("//localhost:" + portaServidor + "/PartRepositoryServer");
+					System.out.println("O repositorio corrente foi alterado para o correspondente ao " + repositorioCorrente.getNomeServidor() + ".");
 				}
 				else if (comando.equals("listp")) {
 					listaPecasRepositorio(); 
@@ -210,9 +212,8 @@ public class RMIClient {
 				else if (comando.equals("help")) {
 					System.out.println("Comandos aceitos pelo sistema:");
 					System.out.println("- bind: faz o cliente se conectar a outro servidor e muda o repositorio");
-					System.out.println("corrente. Parametros: ");
-					System.out.println("  - nome do servidor");
-					System.out.println("  - numero da porta a qual o servidor sera conectado.");
+					System.out.println("corrente. exemplo: bind [porta] ");
+					System.out.println("  - [porta] = numero da porta a qual o servidor está escutando.");
 					System.out.println("- listp: lista as pecas do repositorio corrente. Nao ha parametros.");
 					System.out.println("- getp: busca uma peca por codigo. A busca eh efetuada no repositorio ");
 					System.out.println("corrente. Se encontrada, a peca passa a ser a nova peca corrente.");
@@ -259,14 +260,12 @@ public class RMIClient {
 			}
 			catch(IndexOutOfBoundsException i) {
 				System.out.println("parametros invalidos\n");
-			} 
-			catch(ConnectException | NotBoundException e){
+			} catch(ConnectException | NotBoundException | MalformedURLException e){
 				//e.printStackTrace();
 				if (comando.equals("bind")) {
 					System.out.println("Nao ha nenhum servidor com esse nome.\n");
 				}
-			}
-			catch(Exception e){
+			} catch(Exception e){
 				e.printStackTrace();
 			}
 		}
