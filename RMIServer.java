@@ -132,9 +132,7 @@ public class RMIServer extends UnicastRemoteObject implements PartRepository, Pa
 	}
 	//****************************************************************************************
 	
-	/* metodo que fora usado para teste do servidor. Observe que o nome do servidor deve ser
-	"Servidor%i", em que %i representa um numero inteiro. Tal numero eh somado a 1000 para 
-	que o valor da porta de conexao seja conectado. */
+	// metodo que fora usado para teste do servidor.
 	public static void main (String args[]) {
 		if(args.length != 2){
 			System.out.println("Execute: java RMIServer [nome do servidor] [porta]");
