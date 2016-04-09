@@ -1,3 +1,5 @@
+//Entrada de usuário
+import java.util.Scanner;
 //Estruturas de dados: 
 import java.util.LinkedList;
 import java.util.List;
@@ -147,10 +149,19 @@ public class RMIServer extends UnicastRemoteObject implements PartRepository, Pa
 			RMIServer rmiServer = new RMIServer(servidorNome); 
 			Registry reg = LocateRegistry.createRegistry(porta);
 			reg.bind("PartRepositoryServer", rmiServer);
+			System.out.println("Servidor inicializado com sucesso.\n" + servidorNome + " está 'escutando' a porta " + porta + ".\n");
+			
+			Scanner scanner = new Scanner(System.in);
+			String entrada = "";
+			while( !entrada.equals("exit") && !entrada.equals("quit")){
+				System.out.println("Para finalizar o servidor digite 'exit' ou 'quit'.");
+				entrada = scanner.nextLine();
+			}
+			scanner.close();
 		}catch (Exception x) {
 			System.out.println ("Erro ao vincular o servidor "+ servidorNome + " a porta " + porta + ". Verifique se a porta está disponível." );
 			System.out.println ("Dica: tente portas acima de 1091 ;)");
-			System.exit(1);
 		}
+		System.exit(1);
 	}
 }

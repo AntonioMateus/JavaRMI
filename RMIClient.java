@@ -157,6 +157,7 @@ public class RMIClient {
 		String comando = null; 
 		while (true) {
 			try {
+				System.out.print("> ");
 				String[] parametros = input.nextLine().split(" ");	
 				comando = parametros[0];
 				if (comando.equals("quit")) {
