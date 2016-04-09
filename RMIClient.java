@@ -103,13 +103,13 @@ public class RMIClient {
 	descricao da peca corrente e, recursivamente, de seus subcomponentes. */
 	static void mostraSubpecas(Part peca, String espaco) throws RemoteException {
 		if (peca != null) {
-			System.out.print(espaco+"Nome: "+peca.getNome() +"; descricao: "+peca.getDescricao());
-			String resp = (peca.ehPrimitiva())?"sim":"nao"; 
-			System.out.print("; eh primitiva: "+resp+"\n"); 
-			if (!peca.ehPrimitiva()) {
+			System.out.print(espaco+"NOME: " +peca.getNome() + "; DESCRICAO: " + peca.getDescricao() + ";");
+			if(peca.ehPrimitiva()){
+				System.out.print(" tipo: primitiva\n");
+			} else{
 				Iterator<Part> componentes = peca.getComponentes().keySet().iterator(); 
 				while(componentes.hasNext()) {
-					mostraSubpecas(componentes.next(),espaco+"-"); 
+					mostraSubpecas(componentes.next(), espaco + "-"); 
 				}
 			}
 		}
@@ -158,9 +158,12 @@ public class RMIClient {
 		while (true) {
 			try {
 				System.out.print("> ");
-				String[] parametros = input.nextLine().split(" ");	
+				String[] parametros = input.nextLine().split(" ");
 				comando = parametros[0];
-				if (comando.equals("quit")) {
+				if(comando.length() > 0 && comando.charAt(0) == '#'){
+					//Comentario pular avaliação de qualquer comando
+				}
+				else if (comando.equals("quit")) {
 					break; 
 				}
 				else if (comando.equals("bind")) {
@@ -183,7 +186,9 @@ public class RMIClient {
 					}
 				}
 				else if (comando.equals("showp")) {
-					mostraSubpecas(pecaCorrente,""); 
+					if(estaReferenciandoPeca()){
+						mostraSubpecas(pecaCorrente,"");
+					}
 				}
 				else if (comando.equals("clearlist")) { 
 					listaSubpecasCorrente.clear();							
