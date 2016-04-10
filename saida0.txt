@@ -1,0 +1,171 @@
+> #Teste de console do cliente
+> 
+> #Teste do comando bind
+> #bind com porta que não há nenhum servidor escutando
+> bind 10
+
+Nao ha nenhum servidor com esse nome.
+
+> 
+> #Teste de comandos sem um um servidor conectado
+> addpa Roda0 Roda dianteira esquerda
+
+O cliente nao esta conectado a nenhum servidor no momento.
+
+> addpp Roda0 Roda dianteira esquerda
+
+O cliente nao esta conectado a nenhum servidor no momento.
+
+> addsubpart 2
+
+O cliente nao esta referenciado a nenhuma peca no momento.
+
+> listp
+
+O cliente nao esta conectado a nenhum servidor no momento.
+
+> showp
+
+O cliente nao esta referenciado a nenhuma peca no momento.
+
+> getp 1
+
+O cliente nao esta conectado a nenhum servidor no momento.
+A peca de id 1 nao foi encontrada.
+
+> clearlist
+
+lista de subpecas corrente limpa
+
+> rem 1
+
+O cliente nao esta conectado a nenhum servidor no momento.
+
+> remsublist
+
+Não há peças na lista de subpecas corrente.
+
+> remsubpart 1
+
+O cliente nao esta referenciado a nenhuma peca no momento.
+
+> 
+> #Supondo que um serivdor foi inicializado na porta 1093 e não há nenhuma peça dentro do repositório
+> bind 1093
+
+O repositorio corrente foi alterado para o correspondente ao Watcher.
+
+> 
+> #Recuperar peça com código inexistente
+> getp 1
+
+A peca de id 1 nao foi encontrada.
+
+> 
+> #Adicionando uma peça primitiva que servirá como subcomponente
+> addpp Roda roda aro x
+
+A peca foi inserida e eh a nova peca corrente
+
+> 
+> #Adicionando uma peca qualquer que não servirá como subcomponente
+> addpp peca peca teste
+
+A peca foi inserida e eh a nova peca corrente
+
+> 
+> #Recuperar peça anterior para que ela seja adicionada ao subcomponente
+> getp 1
+
+A peca de id 1 foi encontrada.
+A peca de id 1 eh a nova peca corrente.
+
+> 
+> #Mostrar caracteristicas da peça primitiva corrente
+> showp
+
+Código 1; NOME: Roda; DESCRICAO: roda aro x ; tipo: primitiva
+
+> 
+> #Adicionando 0 cópias a peça corrente a lista de subcomponentes. Caso de erro.
+> addsubpart 0
+
+Adicione uma quantidade válida (maior do que zero).
+
+> 
+> #Adicionando peça corrente a lista de subcomponentes
+> addsubpart 4
+
+Foram adicionadas 4 unidades da peca corrente a lista de subpecas corrente
+
+> 
+> #Adicionando peca agregada
+> addpa Carro fusca vermelho
+
+A peca foi inserida e eh a nova peca corrente
+
+> 
+> #Mostrar caracteristicas da peça agregada corrente
+> showp
+
+Código 3; NOME: Carro; DESCRICAO: fusca vermelho ;-Código 1; NOME: Roda; DESCRICAO: roda aro x ; tipo: primitiva
+
+> 
+> #Lista todas as peças no repositório
+> listp
+
+Código 1; Nome: Roda; descricao: roda aro x 
+Código 2; Nome: peca; descricao: peca teste 
+Código 3; Nome: Carro; descricao: fusca vermelho 
+
+> 
+> #Limpar lista de subcomponente
+> clearlist
+
+lista de subpecas corrente limpa
+
+> 
+> #Adicionar peça agragada sem nenhum subcomponente
+> addpa PecaAgregadaVazia peca agregada que na verdade nao há subcomponente
+
+A peca foi inserida e eh a nova peca corrente
+
+> 
+> #troca peca corrente para a peca de código 2
+> getp 2
+
+A peca de id 2 foi encontrada.
+A peca de id 2 eh a nova peca corrente.
+
+> 
+> #adiciona-a a lista de subcomponentes
+> addsubpart 2
+
+Foram adicionadas 2 unidades da peca corrente a lista de subpecas corrente
+
+> 
+> #remove peca dos subcomponentes
+> remsublist
+
+A ultima peca da lista de subpecas corrente foi excluida.
+
+> 
+> #remove do repositorio a segunda peca adicionada ao repositorio
+> rem 2
+
+A peca de identificador 2 foi removida com sucesso do repositorio corrente.
+
+> listp
+
+Código 1; Nome: Roda; descricao: roda aro x 
+Código 3; Nome: Carro; descricao: fusca vermelho 
+Código 4; Nome: PecaAgregadaVazia; descricao: peca agregada que na verdade nao há subcomponente 
+
+> showp
+
+Código 2; NOME: peca; DESCRICAO: peca teste ; tipo: primitiva
+
+> 
+> #encerrar console
+> quit
+

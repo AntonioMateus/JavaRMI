@@ -1,0 +1,73 @@
+#Teste de console do cliente
+
+#Teste do comando bind
+#bind com porta que não há nenhum servidor escutando
+bind 10
+
+#Teste de comandos sem um um servidor conectado
+addpa Roda0 Roda dianteira esquerda
+addpp Roda0 Roda dianteira esquerda
+addsubpart 2
+listp
+showp
+getp 1
+clearlist
+rem 1
+remsublist
+remsubpart 1
+
+#Supondo que um serivdor foi inicializado na porta 1093 e não há nenhuma peça dentro do repositório
+bind 1093
+
+#Recuperar peça com código inexistente
+getp 1
+
+#Adicionando uma peça primitiva que servirá como subcomponente
+addpp Roda roda aro x
+
+#Adicionando uma peca qualquer que não servirá como subcomponente
+addpp peca peca teste
+
+#Recuperar peça anterior para que ela seja adicionada ao subcomponente
+getp 1
+
+#Mostrar caracteristicas da peça primitiva corrente
+showp
+
+#Adicionando 0 cópias a peça corrente a lista de subcomponentes. Caso de erro.
+addsubpart 0
+
+#Adicionando peça corrente a lista de subcomponentes
+addsubpart 4
+
+#Adicionando peca agregada
+addpa Carro fusca vermelho
+
+#Mostrar caracteristicas da peça agregada corrente
+showp
+
+#Lista todas as peças no repositório
+listp
+
+#Limpar lista de subcomponente
+clearlist
+
+#Adicionar peça agragada sem nenhum subcomponente
+addpa PecaAgregadaVazia peca agregada que na verdade nao há subcomponente
+
+#troca peca corrente para a peca de código 2
+getp 2
+
+#adiciona-a a lista de subcomponentes
+addsubpart 2
+
+#remove peca dos subcomponentes
+remsublist
+
+#remove do repositorio a segunda peca adicionada ao repositorio
+rem 2
+listp
+showp
+
+#encerrar console
+quit
