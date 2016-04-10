@@ -140,6 +140,7 @@ public class RMIServer extends UnicastRemoteObject implements PartRepository, Pa
 			System.out.println("Execute: java RMIServer [nome do servidor] [porta]");
 			System.out.println("\t[nome do servidor] = qualquer nome que vocc deseja dar ao seu servidor");
 			System.out.println("\t[porta] = número de porta qua voce desejar registrar o seu servidor. A porta nao pode estar sendo usada por nenhum outro processo. Escolha com cuidado");
+			return;
 		}
 		
 		String servidorNome = args[0];
