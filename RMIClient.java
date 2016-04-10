@@ -8,9 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap; 
 import java.util.Iterator; 
-//Leitura do fluxo de entrada
+//Leitura do fluxo de entrada e saida
 import java.util.Scanner; 
 import java.util.NoSuchElementException;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 //Classes de conexão com a rede
 import java.net.MalformedURLException;
 
@@ -20,6 +24,8 @@ import java.net.MalformedURLException;
 */
 
 public class RMIClient {
+	static PrintWriter printWriter = null; //Caso o usuário opte pela saida ser escrita num arquivo, esse atributo não será nulo
+
 	static PartRepository repositorioCorrente = null; //servidor (repositorio) que esta sendo referenciado 
 	static Part pecaCorrente = null; //peca que esta sendo referenciada
 	static Map<Part,Integer> listaSubpecasCorrente = new HashMap<>(); /* "lista" de subpecas que esta sendo
@@ -33,11 +39,11 @@ public class RMIClient {
 			List<Part> pecas = repositorioCorrente.recuperaTodasPecas();
 			if (pecas.size() != 0) {
 				for (Part peca: pecas) {
-					System.out.println("Nome: "+peca.getNome() +"; descricao: "+peca.getDescricao());
+					println("Código " +  peca.getCodigo() + "; Nome: "+peca.getNome() +"; descricao: "+peca.getDescricao());
 				}
 			}
 			else {
-				System.out.println("O repositorio esta vazio.");
+				println("O repositorio esta vazio.");
 			}
 		}
 	}	
@@ -74,7 +80,9 @@ public class RMIClient {
 	
 	//metodo que retorna o nome e a desscricao da peca corrente, se esta for valida. 
 	static String getCaracteristicasPecaCorrente() throws RemoteException {
-		if (estaReferenciandoPeca()) return "Nome: "+pecaCorrente.getNome() +"; descricao: "+pecaCorrente.getDescricao(); 
+		if (estaReferenciandoPeca()){
+			return "Código " +  pecaCorrente.getCodigo() + "; Nome: "+pecaCorrente.getNome() +"; descricao: "+pecaCorrente.getDescricao(); 
+		}
 		else return "nao ha nada a declarar";
 	}
 	
@@ -104,9 +112,9 @@ public class RMIClient {
 	descricao da peca corrente e, recursivamente, de seus subcomponentes. */
 	static void mostraSubpecas(Part peca, String espaco) throws RemoteException {
 		if (peca != null) {
-			System.out.print(espaco+"NOME: " +peca.getNome() + "; DESCRICAO: " + peca.getDescricao() + ";");
+			print(espaco + "Código " +  peca.getCodigo() + "; NOME: " +peca.getNome() + "; DESCRICAO: " + peca.getDescricao() + ";");
 			if(peca.ehPrimitiva()){
-				System.out.print(" tipo: primitiva\n");
+				print(" tipo: primitiva\n");
 			} else{
 				Iterator<Part> componentes = peca.getComponentes().keySet().iterator(); 
 				while(componentes.hasNext()) {
@@ -122,9 +130,9 @@ public class RMIClient {
 		if (estaConectado()) {
 			boolean removida = repositorioCorrente.removePeca(id);
 			if(removida){
-				System.out.println("A peca de identificador "+id +" foi removida com sucesso do repositorio corrente.");
+				println("A peca de identificador "+id +" foi removida com sucesso do repositorio corrente.");
 			} else{
-				System.out.println("Não ha nenhuma peca com o codigo " + id);
+				println("Não ha nenhuma peca com o codigo " + id);
 			}
 		}
 	}
@@ -134,36 +142,94 @@ public class RMIClient {
 	static void removeSubpecaPecaCorrente (int id) throws RemoteException {
 		if(estaReferenciandoPeca()){
 			pecaCorrente.removeSubComponente(id); 
-			System.out.println("A subpeca de identificador "+id +" foi removida com sucesso da peca corrente.");
+			println("A subpeca de identificador "+id +" foi removida com sucesso da peca corrente.");
 		}
 	}
 	
 	static boolean estaConectado(){
 		if( repositorioCorrente == null ){
-			System.out.println ("O cliente nao esta conectado a nenhum servidor no momento.");
+			println ("O cliente nao esta conectado a nenhum servidor no momento.");
 		}
 		return repositorioCorrente != null;
 	}
 	
 	static boolean estaReferenciandoPeca(){
 		if( pecaCorrente == null ){
-			System.out.println ("O cliente nao esta referenciado a nenhuma peca no momento.");
+			println ("O cliente nao esta referenciado a nenhuma peca no momento.");
 		}
 		return pecaCorrente != null;
+	}
+	
+	static void print(String linha){
+		if(printWriter != null){
+			printWriter.print(linha);
+		} else{
+			System.out.print(linha);
+		}
+	}
+	
+	static void println(String linha){
+		if(printWriter != null){
+			printWriter.println(linha);
+		} else{
+			System.out.println(linha);
+		}
+	}
+	
+	static void println(){
+		if(printWriter != null){
+			printWriter.println();
+		} else{
+			System.out.println();
+		}
 	}
 	
 	/* metodo principal da classe: ela apresenta um terminal ao usuario. Todos os comandos esperados utilizam as funcoes
 	implementadas acima e tem seu funcionamento explicado pelo comando help. Qualquer informacao adicional seria 
 	considerada repetitiva. */
 	public static void main (String[] args) {
+		String arquivoEntrada = null;
+		if(args.length > 0){
+			String arquivoSaida = args[0];
+			try{
+				FileWriter fileWriter = new FileWriter(arquivoSaida);
+				printWriter = new PrintWriter(fileWriter);
+			} catch(IOException ioe){
+				System.out.println("O arquivo de saída " + arquivoSaida + " não pode ser aberto.");
+			}
+			
+			if(args.length > 1){
+				arquivoEntrada = args[1];
+			}
+		}
+	
 		System.out.println("Digite um dos comandos reconhecidos pelo sistema ou \'help\' para ajuda: ");
-		Scanner input = new Scanner(System.in);
+		Scanner input;
+		if(arquivoEntrada == null){
+			input = new Scanner(System.in);
+		} else{
+			try{
+				input = new Scanner(new File(arquivoEntrada));
+			} catch(IOException e){
+				System.out.println("Não foi possível abrir o arquivo de entrada " + arquivoEntrada + ".");
+				return;
+			}
+		}
+		
 		String comando = ""; 
 		while (true) {
 			try {
-				System.out.print("> ");
-				String[] parametros = input.nextLine().split(" ");
-				System.out.println();
+				if(arquivoEntrada == null){
+					System.out.print("> ");
+				}
+				
+				String linha = input.nextLine();
+				if(printWriter != null){
+					printWriter.println("> " + linha);
+				}
+				
+				String[] parametros = linha.split(" ");
+				println();
 				comando = parametros[0];
 				if(comando.isEmpty()){
 					//Comentario para pular linhas na saida
@@ -173,13 +239,15 @@ public class RMIClient {
 				}
 				else if (comando.equals("quit")) {
 					input.close();
+					if(printWriter != null){
+						printWriter.close();
+					}
 					System.exit(1);
-					break;
 				}
 				else if (comando.equals("bind")) {
 					String portaServidor = parametros[1];
 					repositorioCorrente = (PartRepository) Naming.lookup("//localhost:" + portaServidor + "/PartRepositoryServer");
-					System.out.println("O repositorio corrente foi alterado para o correspondente ao " + repositorioCorrente.getNomeServidor() + ".");
+					println("O repositorio corrente foi alterado para o correspondente ao " + repositorioCorrente.getNomeServidor() + ".");
 				}
 				else if (comando.equals("listp")) {
 					listaPecasRepositorio(); 
@@ -188,11 +256,11 @@ public class RMIClient {
 					int indice = Integer.parseInt(parametros[1]);
 					pecaCorrente = buscaPeca(indice); 
 					if (pecaCorrente != null) { 
-						System.out.println("A peca de id "+indice +" foi encontrada.");
-						System.out.println("A peca de id "+indice +" eh a nova peca corrente.");
+						println("A peca de id "+indice +" foi encontrada.");
+						println("A peca de id "+indice +" eh a nova peca corrente.");
 					}
 					else {
-						System.out.println("A peca de id "+indice +" nao foi encontrada.");
+						println("A peca de id "+indice +" nao foi encontrada.");
 					}
 				}
 				else if (comando.equals("showp")) {
@@ -202,12 +270,16 @@ public class RMIClient {
 				}
 				else if (comando.equals("clearlist")) { 
 					listaSubpecasCorrente.clear();							
-					System.out.println("lista de subpecas corrente limpa");
+					println("lista de subpecas corrente limpa");
 				}
 				else if (comando.equals("addsubpart")) {
 					int quantidade = Integer.parseInt(parametros[1]);
-					listaSubpecasCorrente.put(pecaCorrente,quantidade);
-					System.out.println("Foram adicionadas " +quantidade +" unidades da peca corrente a lista de subpecas corrente");
+					if (quantidade <= 0){
+						println("Adicione uma quantidade válida (maior do que zero).");
+					} else if(estaReferenciandoPeca() && quantidade > 0){
+						listaSubpecasCorrente.put(pecaCorrente,quantidade);
+						println("Foram adicionadas " +quantidade +" unidades da peca corrente a lista de subpecas corrente");
+					}
 				}
 				else if (comando.equals("addpa")) { 
 					String descricao = ""; 
@@ -215,7 +287,9 @@ public class RMIClient {
 						descricao = descricao + parametros[i] +" "; 
 					}
 					pecaCorrente = insereNovaPecaAgregada(parametros[1],descricao,listaSubpecasCorrente);
-					System.out.println("A peca foi inserida e eh a nova peca corrente");
+					if(pecaCorrente != null){
+						println("A peca foi inserida e eh a nova peca corrente");
+					}
 				}
 				else if (comando.equals("addpp")) { 
 					String descricao = ""; 
@@ -223,64 +297,70 @@ public class RMIClient {
 						descricao = descricao + parametros[i] +" "; 
 					}
 					pecaCorrente = insereNovaPecaPrimitiva(parametros[1],descricao);
-					System.out.println("A peca foi inserida e eh a nova peca corrente");
+					if(pecaCorrente != null){
+						println("A peca foi inserida e eh a nova peca corrente");
+					}
 				}
 				else if (comando.equals("help")) {
-					System.out.println("Comandos aceitos pelo sistema:");
-					System.out.println("- bind: faz o cliente se conectar a outro servidor e muda o repositorio");
-					System.out.println("corrente. exemplo: bind [porta] ");
-					System.out.println("\t- [porta] = numero da porta a qual o servidor está escutando.");
-					System.out.println("- listp: lista as pecas do repositorio corrente. Nao ha parametros.");
-					System.out.println("- getp: busca uma peca por codigo. A busca eh efetuada no repositorio ");
-					System.out.println("corrente. Se encontrada, a peca passa a ser a nova peca corrente.");
-					System.out.println("Parametros: ");
-					System.out.println("\t- codigo da peca a ser buscada (numero inteiro maior ou igual a 1);");
-					System.out.println("- showp: mostra atributos da peca corrente e seus subcomponentes (caso");
-					System.out.println("eles existam). Nao ha parametros.");
-					System.out.println("- clearlist: esvazia a lista de subpecas corrente. Nao ha parametros.");
-					System.out.println("- addsubpart: adiciona a lista de subpecas corrente n unidades da peca.");
-					System.out.println("Parametros: ");
-					System.out.println("\t- quantidade n de unidades da subpeca a ser inserida.");
-					System.out.println("- addpa: adiciona uma peca agregada ao repositorio corrente. A lista de subpecas");
-					System.out.println("corrente eh usada como lista de subcomponentes diretos da nova peca. Parametros: ");
-					System.out.println("\t- nome da peca");
-					System.out.println("\t- descricao da peca. A partir do segundo parametro, qualquer espaco sera considerado");
-					System.out.println("\tpertencente a descricao e nao como espaco \"separador\" de parametros.");
-					System.out.println("- addpp: adiciona uma peca primitiva (que nao tem subcomponentes) ao repositorio corrente.");
-					System.out.println("Parametros: ");
-					System.out.println("\t- nome da peca");
-					System.out.println("\t- descricao da peca. A partir do segundo parametro, qualquer espaco sera considerado");
-					System.out.println("\tpertencente a descricao e nao como espaco \"separador\" de parametros.");
-					System.out.println("- rem: remove do repositorio corrente a peca cujo identificador eh especificado. Parametros: ");
-					System.out.println("\t- identificador da peca a ser removida.");
-					System.out.println("- remsublist: remove a ultima peca da lista de subpecas corrente. Nao ha parametros.");
-					System.out.println("- remsubpart: dentre os subcomponentes da peca corrente, sera removida a peca cujo identificador");
-					System.out.println("eh especificado. Parametros: ");
-					System.out.println("\t- identificador da subpeca a ser excluida.");
-					System.out.println("- quit: encerra a execucao do cliente. Nao ha parametros.");
+					println("Comandos aceitos pelo sistema:");
+					println("- bind: faz o cliente se conectar a outro servidor e muda o repositorio");
+					println("corrente. exemplo: bind [porta] ");
+					println("\t- [porta] = numero da porta a qual o servidor está escutando.");
+					println("- listp: lista as pecas do repositorio corrente. Nao ha parametros.");
+					println("- getp: busca uma peca por codigo. A busca eh efetuada no repositorio ");
+					println("corrente. Se encontrada, a peca passa a ser a nova peca corrente.");
+					println("Parametros: ");
+					println("\t- codigo da peca a ser buscada (numero inteiro maior ou igual a 1);");
+					println("- showp: mostra atributos da peca corrente e seus subcomponentes (caso");
+					println("eles existam). Nao ha parametros.");
+					println("- clearlist: esvazia a lista de subpecas corrente. Nao ha parametros.");
+					println("- addsubpart: adiciona a lista de subpecas corrente n unidades da peca.");
+					println("Parametros: ");
+					println("\t- quantidade n de unidades da subpeca a ser inserida.");
+					println("- addpa: adiciona uma peca agregada ao repositorio corrente. A lista de subpecas");
+					println("corrente eh usada como lista de subcomponentes diretos da nova peca. Parametros: ");
+					println("\t- nome da peca");
+					println("\t- descricao da peca. A partir do segundo parametro, qualquer espaco sera considerado");
+					println("\tpertencente a descricao e nao como espaco \"separador\" de parametros.");
+					println("- addpp: adiciona uma peca primitiva (que nao tem subcomponentes) ao repositorio corrente.");
+					println("Parametros: ");
+					println("\t- nome da peca");
+					println("\t- descricao da peca. A partir do segundo parametro, qualquer espaco sera considerado");
+					println("\tpertencente a descricao e nao como espaco \"separador\" de parametros.");
+					println("- rem: remove do repositorio corrente a peca cujo identificador eh especificado. Parametros: ");
+					println("\t- identificador da peca a ser removida.");
+					println("- remsublist: remove a ultima peca da lista de subpecas corrente. Nao ha parametros.");
+					println("- remsubpart: dentre os subcomponentes da peca corrente, sera removida a peca cujo identificador");
+					println("eh especificado. Parametros: ");
+					println("\t- identificador da subpeca a ser excluida.");
+					println("- quit: encerra a execucao do cliente. Nao ha parametros.");
 				}
 				else if (comando.equals("rem")) {
 					removePecaRepositorioCorrente(Integer.parseInt(parametros[1]));
 				}
 				else if (comando.equals("remsublist")) {
-					listaSubpecasCorrente.remove(listaSubpecasCorrente.size()-1);
-					System.out.println("A ultima peca da lista de subpecas corrente foi excluida.");
+					if(listaSubpecasCorrente.size() > 0){
+						listaSubpecasCorrente.remove(listaSubpecasCorrente.size() - 1);
+						println("A ultima peca da lista de subpecas corrente foi excluida.");
+					} else{
+						println("Não há peças na lista de subpecas corrente.");
+					}
 				}
 				else if (comando.equals("remsubpart")) {
 					removeSubpecaPecaCorrente(Integer.parseInt(parametros[1]));
 				}
 				else { 
-					System.out.println("Comando invalido");
+					println("Comando invalido");
 				}
-				System.out.println();
+				println();
 			}
 			catch(IndexOutOfBoundsException i) {
-				System.out.println("parametros invalidos\n");
+				println("parametros invalidos\n");
 			} 
 			catch(ConnectException | NotBoundException | MalformedURLException e){
 				//e.printStackTrace();
 				if (comando.equals("bind")) {
-					System.out.println("Nao ha nenhum servidor com esse nome.\n");
+					println("Nao ha nenhum servidor com esse nome.\n");
 				}
 			}
 			catch (NoSuchElementException e) {
