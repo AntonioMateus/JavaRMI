@@ -229,8 +229,12 @@ public class RMIClient {
 				}
 				
 				String[] parametros = linha.split(" ");
-				println();
 				comando = parametros[0];
+				
+				if(comando.length() > 0 && comando.charAt(0) != '#'){
+					println();
+				}
+				
 				if(comando.isEmpty()){
 					//Comentario para pular linhas na saida
 				}
@@ -352,7 +356,10 @@ public class RMIClient {
 				else { 
 					println("Comando invalido");
 				}
-				println();
+				
+				if(comando.length() > 0 && comando.charAt(0) != '#'){
+					println();
+				}
 			}
 			catch(IndexOutOfBoundsException i) {
 				println("parametros invalidos\n");
