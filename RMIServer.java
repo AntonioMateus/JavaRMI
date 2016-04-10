@@ -127,10 +127,14 @@ public class RMIServer extends UnicastRemoteObject implements PartRepository, Pa
 		return peca; 
 	}
 	
-	public void removePeca(int id) throws RemoteException {
+	public boolean removePeca(int id) throws RemoteException {
 		for (int i = 0; i < listaPecas.size(); i++) {
-			if (listaPecas.get(i).getCodigo()==id) listaPecas.remove(i); 
+			if (listaPecas.get(i).getCodigo()==id){
+				listaPecas.remove(i);
+				return true;
+			}
 		}
+		return false;
 	}
 	//****************************************************************************************
 	

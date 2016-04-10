@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator; 
 //Leitura do fluxo de entrada
 import java.util.Scanner; 
+import java.util.NoSuchElementException;
 //Classes de conexão com a rede
 import java.net.MalformedURLException;
 
@@ -119,8 +120,12 @@ public class RMIClient {
 	correspondente */
 	static void removePecaRepositorioCorrente (int id) throws RemoteException {
 		if (estaConectado()) {
-			repositorioCorrente.removePeca(id);
-			System.out.println("A peca de identificador "+id +" foi removida com sucesso do repositorio corrente.");
+			boolean removida = repositorioCorrente.removePeca(id);
+			if(removida){
+				System.out.println("A peca de identificador "+id +" foi removida com sucesso do repositorio corrente.");
+			} else{
+				System.out.println("Não ha nenhuma peca com o codigo " + id);
+			}
 		}
 	}
 	
@@ -152,19 +157,24 @@ public class RMIClient {
 	considerada repetitiva. */
 	public static void main (String[] args) {
 		System.out.println("Digite um dos comandos reconhecidos pelo sistema ou \'help\' para ajuda: ");
-		System.out.println();
 		Scanner input = new Scanner(System.in);
-		String comando = null; 
+		String comando = ""; 
 		while (true) {
 			try {
 				System.out.print("> ");
 				String[] parametros = input.nextLine().split(" ");
+				System.out.println();
 				comando = parametros[0];
-				if(comando.length() > 0 && comando.charAt(0) == '#'){
+				if(comando.isEmpty()){
+					//Comentario para pular linhas na saida
+				}
+				else if(comando.length() > 0 && comando.charAt(0) == '#'){
 					//Comentario pular avaliação de qualquer comando
 				}
 				else if (comando.equals("quit")) {
-					break; 
+					input.close();
+					System.exit(1);
+					break;
 				}
 				else if (comando.equals("bind")) {
 					String portaServidor = parametros[1];
@@ -219,34 +229,34 @@ public class RMIClient {
 					System.out.println("Comandos aceitos pelo sistema:");
 					System.out.println("- bind: faz o cliente se conectar a outro servidor e muda o repositorio");
 					System.out.println("corrente. exemplo: bind [porta] ");
-					System.out.println("  - [porta] = numero da porta a qual o servidor está escutando.");
+					System.out.println("\t- [porta] = numero da porta a qual o servidor está escutando.");
 					System.out.println("- listp: lista as pecas do repositorio corrente. Nao ha parametros.");
 					System.out.println("- getp: busca uma peca por codigo. A busca eh efetuada no repositorio ");
 					System.out.println("corrente. Se encontrada, a peca passa a ser a nova peca corrente.");
 					System.out.println("Parametros: ");
-					System.out.println("  - codigo da peca a ser buscada (numero inteiro maior ou igual a 1);");
+					System.out.println("\t- codigo da peca a ser buscada (numero inteiro maior ou igual a 1);");
 					System.out.println("- showp: mostra atributos da peca corrente e seus subcomponentes (caso");
 					System.out.println("eles existam). Nao ha parametros.");
 					System.out.println("- clearlist: esvazia a lista de subpecas corrente. Nao ha parametros.");
 					System.out.println("- addsubpart: adiciona a lista de subpecas corrente n unidades da peca.");
 					System.out.println("Parametros: ");
-					System.out.println("  - quantidade n de unidades da subpeca a ser inserida.");
+					System.out.println("\t- quantidade n de unidades da subpeca a ser inserida.");
 					System.out.println("- addpa: adiciona uma peca agregada ao repositorio corrente. A lista de subpecas");
 					System.out.println("corrente eh usada como lista de subcomponentes diretos da nova peca. Parametros: ");
-					System.out.println("  - nome da peca");
-					System.out.println("  - descricao da peca. A partir do segundo parametro, qualquer espaco sera considerado");
-					System.out.println("  pertencente a descricao e nao como espaco \"separador\" de parametros.");
+					System.out.println("\t- nome da peca");
+					System.out.println("\t- descricao da peca. A partir do segundo parametro, qualquer espaco sera considerado");
+					System.out.println("\tpertencente a descricao e nao como espaco \"separador\" de parametros.");
 					System.out.println("- addpp: adiciona uma peca primitiva (que nao tem subcomponentes) ao repositorio corrente.");
 					System.out.println("Parametros: ");
-					System.out.println("  - nome da peca");
-					System.out.println("  - descricao da peca. A partir do segundo parametro, qualquer espaco sera considerado");
-					System.out.println("  pertencente a descricao e nao como espaco \"separador\" de parametros.");
+					System.out.println("\t- nome da peca");
+					System.out.println("\t- descricao da peca. A partir do segundo parametro, qualquer espaco sera considerado");
+					System.out.println("\tpertencente a descricao e nao como espaco \"separador\" de parametros.");
 					System.out.println("- rem: remove do repositorio corrente a peca cujo identificador eh especificado. Parametros: ");
-					System.out.println("  - identificador da peca a ser removida.");
+					System.out.println("\t- identificador da peca a ser removida.");
 					System.out.println("- remsublist: remove a ultima peca da lista de subpecas corrente. Nao ha parametros.");
 					System.out.println("- remsubpart: dentre os subcomponentes da peca corrente, sera removida a peca cujo identificador");
 					System.out.println("eh especificado. Parametros: ");
-					System.out.println("  - identificador da subpeca a ser excluida.");
+					System.out.println("\t- identificador da subpeca a ser excluida.");
 					System.out.println("- quit: encerra a execucao do cliente. Nao ha parametros.");
 				}
 				else if (comando.equals("rem")) {
@@ -262,16 +272,21 @@ public class RMIClient {
 				else { 
 					System.out.println("Comando invalido");
 				}
-				System.out.println(); 
+				System.out.println();
 			}
 			catch(IndexOutOfBoundsException i) {
 				System.out.println("parametros invalidos\n");
-			} catch(ConnectException | NotBoundException | MalformedURLException e){
+			} 
+			catch(ConnectException | NotBoundException | MalformedURLException e){
 				//e.printStackTrace();
 				if (comando.equals("bind")) {
 					System.out.println("Nao ha nenhum servidor com esse nome.\n");
 				}
-			} catch(Exception e){
+			}
+			catch (NoSuchElementException e) {
+		        break;
+		    } 
+			catch(Exception e){
 				e.printStackTrace();
 			}
 		}

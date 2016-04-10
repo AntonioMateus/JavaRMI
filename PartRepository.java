@@ -19,5 +19,5 @@ public interface PartRepository extends Remote{
 	repositorio. */
 	public String getNomeServidor() throws RemoteException; //retorna o nome do servidor responsavel pelo repositorio 
 	public int getNumeroPecas() throws RemoteException; //retorna o numero de pecas armazenadas no repositorio
-	public void removePeca(int id) throws RemoteException; //remove uma peca da lista de pecas no repositorio
+	public boolean removePeca(int id) throws RemoteException; //remove uma peca da lista de pecas no repositorio
 }
